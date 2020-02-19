@@ -103,7 +103,7 @@ int main()
 {
 
     char *portname = "/dev/ttyUSB0";
-    //int fd;
+    // int fd;
     int wlen;
 
     fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
@@ -115,7 +115,15 @@ int main()
     set_interface_attribs(fd, B115200);
     //set_mincount(fd, 0);                /* set to pure timed read */
 
+    // initiate the bldc specific interfaces
     bldc_interface_uart_init(send_func);
+    // write(fd, "Hello!\n", 7);
+
+    // do{
+    // // packet_send_packet("ping\n",5,0);
+    // // packet_send_packet("Hello!\n",7,0);
+    // // packet_send_packet("!\n",3,0);
+    // }while(1);
     
 
 
@@ -126,34 +134,26 @@ int main()
     }
     tcdrain(fd);    /* delay for output */
 
-    write(fd,"Hello!\n", 7);
-    write(fd,"Hello!\n", 7);
-    write(fd,"Hello!\n", 7);
-    write(fd,"Hello!\n", 7);
-
-
 
     /* simple noncanonical input */
     do {
-        printf("Calling Function: ");
-        bldc_interface_get_values();
-        COMM_GET_VALUES;
-        COMM_PRINT;
-        printf("%f\t", values.current_in);
-        printf("%f\t", values.temp_motor);
-        printf("End of call\n");
-        printf("Next Statement: ");
-        bldc_interface_process_packet("ping\n",5);
+        // printf("Calling Function: ");
+        // bldc_interface_get_values();
+        // COMM_GET_VALUES;
+        // COMM_PRINT;
+        // printf("%f\t", values.current_in);
+        // printf("%f\t", values.temp_motor);
+        // printf("End of call\n");
+        // write(fd, "Hello!\n", 7);
+        // packet_send_packet("Hello!\n",7,0);
+
+        
+
 
         unsigned char buf[80];
         int rdlen;
 
-        printf("Pre-read: %d\n", rdlen);
         rdlen = read(fd, buf, sizeof(buf) - 1);
-        printf("Post-read: %d\n", rdlen);
-
-
-
 
         if (rdlen > 0) {
 #ifdef DISPLAY_STRING

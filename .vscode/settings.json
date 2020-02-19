@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "bldc_interface_uart.h": "c"
+    }
+}

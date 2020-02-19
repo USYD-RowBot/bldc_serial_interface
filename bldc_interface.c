@@ -92,10 +92,10 @@ void bldc_interface_set_forward_func(void(*func)(unsigned char *data, unsigned i
  */
 void bldc_interface_send_packet(unsigned char *data, unsigned int len) {
 
-	printf("Len = %d\n", len);
-	for(int i=0; i< len; i++)
-		printf("0x%02X ", data[i] & 0xFF);
-	printf("\n");
+	// printf("Len = %d\n", len);
+	// for(int i=0; i< len; i++)
+	// 	printf("0x%02X ", data[i] & 0xFF);
+	// printf("\n");
 
 	if (send_func) {
 		send_func(data, len);
