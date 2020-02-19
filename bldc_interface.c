@@ -27,6 +27,7 @@
 #include "bldc_interface.h"
 #include "buffer.h"
 #include <string.h>
+#include <stdio.h>
 
 // Private variables
 static unsigned char send_buffer[1024];
@@ -90,6 +91,12 @@ void bldc_interface_set_forward_func(void(*func)(unsigned char *data, unsigned i
  * The data length.
  */
 void bldc_interface_send_packet(unsigned char *data, unsigned int len) {
+
+	printf("Len = %d\n", len);
+	for(int i=0; i< len; i++)
+		printf("0x%02X ", data[i] & 0xFF);
+	printf("\n");
+
 	if (send_func) {
 		send_func(data, len);
 	}

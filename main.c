@@ -15,11 +15,16 @@
 #include "buffer.h"
 #include "datatypes.h"
 #include "bldc_interface.h"
+#include "crc.h"
+#include "packet.h"
+#include "bldc_interface_uart.h"
+#include "comm_uart.h"
 
 static mc_values values;
 static mc_configuration mcconf;
 static app_configuration appconf;
 
+int fd;
 
 ////////////////////////////////////////////////////
 
@@ -30,8 +35,6 @@ static app_configuration appconf;
 ////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////
-
-
 
 int set_interface_attribs(int fd, int speed)
 {
@@ -89,13 +92,18 @@ void set_mincount(int fd, int mcount)
 
 // }
 
+static void send_func(unsigned char *d, unsigned int len)
+{
+   write(fd, (void *)d, len);
+}
 
 
 
 int main()
 {
+
     char *portname = "/dev/ttyUSB0";
-    int fd;
+    //int fd;
     int wlen;
 
     fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
@@ -107,12 +115,22 @@ int main()
     set_interface_attribs(fd, B115200);
     //set_mincount(fd, 0);                /* set to pure timed read */
 
+    bldc_interface_uart_init(send_func);
+    
+
+
     /* simple output */
     wlen = write(fd, "Hello!\n", 7);
     if (wlen != 7) {
         printf("Error from write: %d, %d\n", wlen, errno);
     }
     tcdrain(fd);    /* delay for output */
+
+    write(fd,"Hello!\n", 7);
+    write(fd,"Hello!\n", 7);
+    write(fd,"Hello!\n", 7);
+    write(fd,"Hello!\n", 7);
+
 
 
     /* simple noncanonical input */
@@ -123,42 +141,29 @@ int main()
         COMM_PRINT;
         printf("%f\t", values.current_in);
         printf("%f\t", values.temp_motor);
-        printf("ENd of call\n");
-
-        
-        
-        for (int c = 1; c <= 100; c++){
-            for (int d = 1; d <= 500; d++)
-            {   
-                printf("Set to 3000\n");
-                bldc_interface_set_rpm(3000);
-            }
-        }
-        for (int c = 1; c <= 100; c++){
-            for (int d = 1; d <= 500; d++)
-            {   
-                printf("Set to 5000\n");
-                bldc_interface_set_rpm(5000);
-            }
-        }
-
-        printf("Exit RPM loops\n");
-
+        printf("End of call\n");
+        printf("Next Statement: ");
+        bldc_interface_process_packet("ping\n",5);
 
         unsigned char buf[80];
         int rdlen;
 
+        printf("Pre-read: %d\n", rdlen);
         rdlen = read(fd, buf, sizeof(buf) - 1);
+        printf("Post-read: %d\n", rdlen);
+
+
+
+
         if (rdlen > 0) {
 #ifdef DISPLAY_STRING
             buf[rdlen] = 0;
             printf("Read %d: \"%s\"\n", rdlen, buf);
 #else /* display hex */
             unsigned char   *p;
-            //printf("Read %d:", rdlen);
+            printf("Read %d:", rdlen);
             for (p = buf; rdlen-- > 0; p++);
                 //printf(" 0x%x", *p);
-            //printf("\n");
             printf("%s\n", p);
             
 #endif
