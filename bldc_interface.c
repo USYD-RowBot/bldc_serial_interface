@@ -56,6 +56,12 @@ void send_packet_no_fwd(unsigned char *data, unsigned int len);
 static void(*send_func)(unsigned char *data, unsigned int len) = 0;
 static void(*forward_func)(unsigned char *data, unsigned int len) = 0;
 
+
+
+
+
+
+
 // Function pointers for received data
 static void(*rx_value_func)(mc_values *values) = 0;
 static void(*rx_printf_func)(char *str) = 0;
@@ -92,10 +98,10 @@ void bldc_interface_set_forward_func(void(*func)(unsigned char *data, unsigned i
  */
 void bldc_interface_send_packet(unsigned char *data, unsigned int len) {
 
-	// printf("Len = %d\n", len);
-	// for(int i=0; i< len; i++)
-	// 	printf("0x%02X ", data[i] & 0xFF);
-	// printf("\n");
+	printf("Len = %d\t", len);
+	for(int i=0; i< len; i++)
+		printf("0x%02X ", data[i] & 0xFF);
+	printf("\n");
 
 	if (send_func) {
 		send_func(data, len);
@@ -206,6 +212,7 @@ void bldc_interface_process_packet(unsigned char *data, unsigned int len) {
 
 	case COMM_GET_MCCONF:
 	case COMM_GET_MCCONF_DEFAULT:
+		printf("Got a MC conf packet\n");
 		ind = 0;
 		mcconf.pwm_mode = data[ind++];
 		mcconf.comm_mode = data[ind++];
@@ -828,7 +835,7 @@ void bldc_interface_get_fw_version(void) {
 	send_packet_no_fwd(send_buffer, send_index);
 }
 
-void bldc_interface_get_values(void) {
+void bldc_interface_get_values(void) {\
 	if (values_requested_func) {
 		values_requested_func();
 		return;
