@@ -39,6 +39,8 @@ int fd;
 
 ////////////////////////////////////////////////////
 
+/* Serial Configurations */
+
 int set_interface_attribs(int fd, int speed)
 {
     struct termios tty;
@@ -93,6 +95,11 @@ void set_mincount(int fd, int mcount)
         printf("Error tcsetattr: %s\n", strerror(errno));
 }
 
+////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////
 
 // standard send function for enabling other files
 static void send_func(unsigned char *d, unsigned int len)
@@ -164,7 +171,8 @@ void *read_thread()
 
 void mcconf_callback(mc_configuration *mcconf)
 {
-    printf("%f\t", mcconf->cc_min_current);
+    printf("\r\n");
+    printf("cc_min_current: %.4f A\r\n", mcconf->cc_min_current);
     printf("End of call\n");
 }
 
@@ -212,10 +220,10 @@ int main()
     }
     /*baudrate 115200, 8 bits, no parity, 1 stop bit */
     set_interface_attribs(fd, B115200);
-    //set_mincount(fd, 0);                /* set to pure timed read */
 
     pthread_create(&timerT, NULL, timer_thread, NULL);
     pthread_create(&readT, NULL, read_thread, NULL);
+
 
     // initiate the bldc specific interfaces
     bldc_interface_uart_init(send_func);
@@ -223,16 +231,21 @@ int main()
 
     // bldc_interface_set_rx_mcconf_func(mcconf_callback);
     bldc_interface_set_rx_value_func(bldc_val_received);
+    // bldc_interface_set_rpm(3000);
 
-    /* simple noncanonical input */
+    // simple noncanonical input 
     do
     {
 
-        printf("Acquiring values: ");
-        // bldc_interface_get_mcconf();
+        printf("Acquiring values: \n");
         bldc_interface_get_values();
+        // bldc_interface_get_mcconf();
 
-        /*
+        // set the motor rpm
+        bldc_interface_set_rpm(3000);
+
+
+/*        
         unsigned char buf[80];
         int rdlen;
         
@@ -241,9 +254,9 @@ int main()
             for(int i=0; i<rdlen; i++)
                 printf("0x%02X ",buf[i] & 0xFF);
             printf("%s\n", buf);
-        */
+        
 
-        /*
+        
         if (rdlen > 0) {
 #ifdef DISPLAY_STRING
             buf[rdlen] = 0;
@@ -271,6 +284,8 @@ int main()
 
     } while (!main_exit);
 
+    bldc_interface_set_rpm(0);
     pthread_join(timerT, NULL);
     pthread_join(readT, NULL);
+
 }
