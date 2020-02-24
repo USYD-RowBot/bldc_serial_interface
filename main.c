@@ -209,6 +209,7 @@ int main()
     pthread_t timerT;
     pthread_t readT;
 
+    // initialise serial communications
     char *portname = "/dev/ttyUSB0";
     int wlen;
 
@@ -218,7 +219,8 @@ int main()
         printf("Error opening %s: %s\n", portname, strerror(errno));
         return -1;
     }
-    /*baudrate 115200, 8 bits, no parity, 1 stop bit */
+
+    // baudrate 115200, 8 bits, no parity, 1 stop bit 
     set_interface_attribs(fd, B115200);
 
     pthread_create(&timerT, NULL, timer_thread, NULL);
@@ -227,7 +229,6 @@ int main()
 
     // initiate the bldc specific interfaces
     bldc_interface_uart_init(send_func);
-    // write(fd, "Hello!\n", 7);
 
     // bldc_interface_set_rx_mcconf_func(mcconf_callback);
     bldc_interface_set_rx_value_func(bldc_val_received);
@@ -240,6 +241,7 @@ int main()
         printf("Acquiring values: \n");
         bldc_interface_get_values();
         // bldc_interface_get_mcconf();
+
 
         // set the motor rpm
         bldc_interface_set_rpm(3000);
